@@ -1,39 +1,15 @@
-import { Router } from "express";
+const { Router } = require('express');
 
 const router = Router();
 
-router.get("/health", (_req, res) => {
-  res.status(200).json({
-    status: "ok",
-    service: "backend",
+router.get('/', (req, res) => {
+  res.json({
+    data: {
+      status: 'ok',
+      service: 'backend',
+      timestamp: new Date().toISOString()
+    }
   });
 });
 
-router.get("/categories", (_req, res) => {
-  res.status(200).json({
-    data: [
-      {
-        name: "JavaScript / Frontend",
-        slug: "javascript-frontend",
-      },
-      {
-        name: "Backend та DevOps",
-        slug: "backend-devops",
-      },
-      {
-        name: "Штучний інтелект та ML",
-        slug: "ai-ml",
-      },
-      {
-        name: "Кібербезпека",
-        slug: "cybersecurity",
-      },
-      {
-        name: "Огляди інструментів та технологій",
-        slug: "tools-reviews",
-      },
-    ],
-  });
-});
-
-export default router;
+module.exports = router;

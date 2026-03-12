@@ -2,14 +2,46 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: it-blog-postgres
-    environment:
-      POSTGRES_DB: it_blog
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-it_blog}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
+
+  backend:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev"
+    ports:
+      - "${BACKEND_PORT:-4000}:4000"
+    environment:
+      PORT: ${BACKEND_PORT:-4000}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-it_blog}
+      JWT_SECRET: ${JWT_SECRET:-change-me}
+      CORS_ORIGIN: http://localhost:${FRONTEND_PORT:-3000}
+    volumes:
+      - ./apps/backend:/app
+    depends_on:
+      - postgres
+
+  frontend:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev"
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      PORT: ${FRONTEND_PORT:-3000}
+      NEXT_PUBLIC_SITE_URL: http://localhost:${FRONTEND_PORT:-3000}
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:${BACKEND_PORT:-4000}
+      NEXT_PUBLIC_SITE_NAME: IT Blog
+    volumes:
+      - ./apps/frontend:/app
+    depends_on:
+      - backend
 
 volumes:
-  postgres_data:
+  postgres-data:
