@@ -1,6 +1,17 @@
+function getSafeBaseUrl() {
+  const fallback = 'http://localhost:3000';
+  const raw = process.env.NEXT_PUBLIC_SITE_URL || fallback;
+
+  try {
+    return new URL(raw).toString().replace(/\/$/, '');
+  } catch {
+    return fallback;
+  }
+}
+
 export const siteConfig = {
   name: process.env.NEXT_PUBLIC_SITE_NAME || 'IT Blog',
-  baseUrl: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+  baseUrl: getSafeBaseUrl(),
   description:
     'Новини та статті про frontend, backend, DevOps, AI, кібербезпеку й корисні інструменти.'
 };
